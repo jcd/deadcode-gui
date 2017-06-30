@@ -1,0 +1,35 @@
+{
+	"name": "deadcode-gui",
+	"description": "GUI library of deadcode editor",
+	"authors": ["Jonas Drewsen"],
+	"homepage": "http://deadcode.steamwinter.com",
+	"license": "Boost v1",
+    "targetType": "library",
+    "sourcePaths": [ "deadcode" ],
+    "importPaths": [ "." ],
+	"dependencies": {
+		"jsonserialized": "~>0.2.1",
+		"deadcode-animation" : ">=0.0.0",
+		"deadcode-graphics" : ">=0.0.0",
+		"deadcode-io" : ">=0.0.0",
+		"deadcode-edit" : ">=0.0.0"
+	},
+	"dependencies-posix": {
+	    "x11": "~>1.0.8"
+	},	
+	"versions-windows": ["Unicode" ],
+	"configurations" : [
+		{
+			"name" : "library"
+		},
+		{
+			"name" : "unittest",
+			"versions" : [ "TestingByTool" ]
+		},
+		{
+			"name" : "guitest",
+    		"sourcePaths": [ "deadcode", "tests" ],
+			"versions" : [ "GUITest", "TestingByTool" ]
+		}
+	]
+}
