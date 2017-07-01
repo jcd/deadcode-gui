@@ -8,7 +8,7 @@ import deadcode.core.commandparameter;
 import deadcode.gui.keycode;
 import deadcode.math;
 
-import jsonserialized.deserialization : NoSerialize;
+import tests.jsonserialized.traits : NoSerialize;
 
 //import std.traits;
 // import std.variant;

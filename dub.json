@@ -8,7 +8,7 @@
     "sourcePaths": [ "deadcode" ],
     "importPaths": [ "." ],
 	"dependencies": {
-		"jsonserialized": "~>0.2.1",
+		"std_data_json": "~>0.18.2",
 		"deadcode-animation" : ">=0.0.0",
 		"deadcode-graphics" : ">=0.0.0",
 		"deadcode-io" : ">=0.0.0",

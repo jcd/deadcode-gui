@@ -19,7 +19,6 @@ import deadcode.gui.window;
 import deadcode.graphics;
 import deadcode.io.iomanager;
 
-import stdx.data.json;
 
 shared static this()
 {
@@ -37,13 +36,15 @@ shared static this()
 
 T deserializeEvent(T)(T ev, JSONValue json)
 {
-    import jsonserialized.deserialization;
+    import tests.jsonserialized.deserialization;
     ev.deserializeFromJSONValue(json);
     return ev;
 }
 
 private Event parseEvent(string serializedEvent)
 {
+    import stdx.data.json;
+
     import std.string;    
     auto eventName = serializedEvent.munch("^ ");
     serializedEvent.munch(" ");
@@ -58,7 +59,7 @@ private Event parseEvent(string serializedEvent)
 
 string serializeEvent(T)(T e)
 {
-    import jsonserialized.serialization;
+    import tests.jsonserialized.deserialization;
 
     JSONValue js = e.serializeToJSONValue();
     return T.stringof ~ " " ~ js.toJSON!(GeneratorOptions.compact);
