@@ -1,4 +1,6 @@
 // copied from https://github.com/forbjok/jsonserialized
+version (none):
+
 module tests.jsonserialized.unittests;
 
 unittest {
