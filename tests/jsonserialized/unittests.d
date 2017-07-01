@@ -1,4 +1,5 @@
 // copied from https://github.com/forbjok/jsonserialized
+/+
 version (none):
 
 module tests.jsonserialized.unittests;
@@ -257,3 +258,4 @@ unittest {
     assertEqual(ts.notAA, 0);
     assertEqual(ts.alsoNotAA, "");
 }
++/
