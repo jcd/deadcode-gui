@@ -43,11 +43,11 @@ class ScrollView : Widget
         }
     }
 
-    this(Vec2f contentSize)
+    this(Vec2f contentSize) nothrow
 	{
         _scrollArea = new Widget(this, 0, 0, contentSize.x, contentSize.y);
 
-   		this.onMouseWheelCallback = &scroll;
+   		onMouseWheelCallback = &scroll;
     }
 
     private deadcode.core.event.EventUsed scroll(MouseWheelEvent e, Widget w)

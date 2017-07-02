@@ -499,7 +499,7 @@ class Widget : Stylable
 
     protected bool _visible;
 
-	private void eventCallbackHelper(EventT)(EventType t, EventUsed delegate(EventT, Widget) del)
+	private void eventCallbackHelper(EventT)(EventType t, EventUsed delegate(EventT, Widget) del) nothrow
 	{
 		if (del is null)
 			events.remove(t);
@@ -841,14 +841,14 @@ class Widget : Stylable
 			return _sizeDirty;
 		}
 
-		void onMouseClickCallback(EventUsed delegate(Event, Widget) del) { eventCallbackHelper(GUIEvents.mouseClicked, del); }
-		void onMouseOverCallback(EventUsed delegate(Event, Widget) del) { eventCallbackHelper(GUIEvents.mouseOver, del); }
-		void onMouseOutCallback(EventUsed delegate(Event, Widget) del) { eventCallbackHelper(GUIEvents.mouseOut, del); }
-		void onMouseWheelCallback(EventUsed delegate(MouseWheelEvent, Widget) del) { eventCallbackHelper(GUIEvents.mouseWheel, del); }
-		void onKeyPressedCallback(EventUsed delegate(KeyPressedEvent, Widget) del) { eventCallbackHelper(GUIEvents.keyPressed, del); }
-		void onKeyReleasedCallback(EventUsed delegate(KeyReleasedEvent, Widget) del) { eventCallbackHelper(GUIEvents.keyReleased, del); }
-		void onTextCallback(EventUsed delegate(Event, Widget) del) { eventCallbackHelper(GUIEvents.text, del); }
-		void onCommandCallback(EventUsed delegate(CommandEvent, Widget) del) { eventCallbackHelper(GUIEvents.command, del); }
+		void onMouseClickCallback(EventUsed delegate(Event, Widget) del) nothrow { eventCallbackHelper(GUIEvents.mouseClicked, del); }
+		void onMouseOverCallback(EventUsed delegate(Event, Widget) del) nothrow { eventCallbackHelper(GUIEvents.mouseOver, del); }
+		void onMouseOutCallback(EventUsed delegate(Event, Widget) del) nothrow { eventCallbackHelper(GUIEvents.mouseOut, del); }
+		void onMouseWheelCallback(EventUsed delegate(MouseWheelEvent, Widget) del) nothrow { eventCallbackHelper(GUIEvents.mouseWheel, del); }
+		void onKeyPressedCallback(EventUsed delegate(KeyPressedEvent, Widget) del) nothrow { eventCallbackHelper(GUIEvents.keyPressed, del); }
+		void onKeyReleasedCallback(EventUsed delegate(KeyReleasedEvent, Widget) del) nothrow { eventCallbackHelper(GUIEvents.keyReleased, del); }
+		void onTextCallback(EventUsed delegate(Event, Widget) del) nothrow { eventCallbackHelper(GUIEvents.text, del); }
+		void onCommandCallback(EventUsed delegate(CommandEvent, Widget) del) nothrow { eventCallbackHelper(GUIEvents.command, del); }
 
 
 		/// XXX: Doing cursor shapes! But these callbacks need to be signals because several listeners must be possible!.
