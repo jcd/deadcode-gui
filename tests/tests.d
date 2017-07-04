@@ -14,7 +14,7 @@ import stdx.data.json;
 
 T deserializeEvent(T)(T ev, JSONValue json)
 {
-    import jsonserialized.deserialization;
+    import tests.jsonserialized.deserialization;
     ev.deserializeFromJSONValue(json);
     return ev;
 }
@@ -35,7 +35,7 @@ private Event parseEvent(string serializedEvent)
 
 private string serializeEvent(T)(T e)
 {
-    import jsonserialized.serialization;
+    import tests.jsonserialized.serialization;
 
     JSONValue js = e.serializeToJSONValue();
     return T.stringof ~ " " ~ js.toJSON!(GeneratorOptions.compact);
