@@ -94,11 +94,14 @@ struct TextBoxLayout
 		assumeSafeAppend(curLineHeightBufferInfos);
 	}
 
-	size_t add(Text)(Text text, Style style)
+	size_t add(Text)(Text text, Style style, int maxLines)
 	{
 		assert(style.font !is null);
         //if (style.font is null)
         //    return text.length; // Missing font on style -> just pretend that all have been rendered
+		
+		if (lineCount > maxLines)
+			return 0;
 
         _missingGlyphInfo = false;
 
@@ -133,6 +136,8 @@ struct TextBoxLayout
 				}
 
 				_newLine(curLine.region.b, topOfNextLineBox);
+				if (lineCount > maxLines)
+					break;
 			}
 		}
 

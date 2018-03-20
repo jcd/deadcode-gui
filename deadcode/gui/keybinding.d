@@ -1,7 +1,6 @@
 module deadcode.gui.keybinding;
 
-import deadcode.core.commandparameter;
-
+import deadcode.command.commandparameter;
 import deadcode.gui.keycode;
 import deadcode.gui.ruleset;
 import deadcode.graphics;

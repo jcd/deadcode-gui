@@ -8,7 +8,7 @@ import deadcode.core.eventsource : MainEventSource, ITimer;
 import deadcode.core.signals;
 import deadcode.gui.gui : GUI;
 import deadcode.gui.locations;
-import deadcode.gui.resources.generic : GenericResource;
+import deadcode.gui.resources.generic : GenericResource, GenericResourceManager;
 import deadcode.gui.style.stylesheet;
 import deadcode.gui.style.manager;
 import deadcode.gui.window;
@@ -19,7 +19,6 @@ class Application
     private
     {
         GUI _gui;
-        StyleSheet _defaultStyleSheet;
         GenericResource _sessionData;
         bool _running;
     }
@@ -31,11 +30,14 @@ class Application
         ITimer timer() { return _gui.eventSource.timer; };
         LocationsManager locationsManager() { return _gui.locationsManager; }
         StyleSheetManager styleSheetManager() { return _gui.styleSheetManager; }
+		GenericResourceManager genericResourceManager() { return _gui.genericResourceManager; }
     }
     
     // (double timeSinceAppStart, double deltaTime)
     mixin Signal!(double, double) onUpdate;
     mixin Signal!Event onEvent;
+    mixin Signal!() onStart;
+    mixin Signal!() onStop;
 
     this(MainEventSource mainEventSource)
     {
@@ -48,14 +50,13 @@ class Application
         auto graphicsSystem = new OpenGLSystem;
         auto gui = new GUI(mainEventSource, graphicsSystem, fileMgr);
         
-        this(gui, new StyleSheet);
+        this(gui);
     }
 
-    this(GUI gui, StyleSheet defaultStyleSheet)
+    this(GUI gui)
     {
         _gui = gui;
         _gui.onEvent.connect(&handleEvent);
-        _defaultStyleSheet = defaultStyleSheet;
         _sessionData = new GenericResource();
     }
    
@@ -71,6 +72,7 @@ class Application
         {
 			_gui.init();
             _running = true;
+            onStart.emit();
         }
 
 		int ticks = 0;
@@ -88,13 +90,25 @@ class Application
 				// std.stdio.writeln(std.conv.text("FPS ", 100.0 / secs));
 			}
 		}
+
+        onStop.emit();
         return 0;
+	}
+
+	void stop()
+	{
+		_running = false;
 	}
 
     void tick()
     {
         onUpdate.emit(1,1);
         _gui.tick();
+    }
+
+    private final void queueStartCommands()
+    {
+        
     }
 
     W createWindow(W = Window)(string name = "MainWindow")
@@ -104,3 +118,15 @@ class Application
         return w;
     }
 }
+
+/*debug
+{
+    class TestWindow(MainWidget) : Window
+    {
+        this(const(char)[] _name, int width, int height, RenderTarget _renderTarget, StyleSheet ss)
+        {
+            super(_name, width, height, _renderTarget, ss);
+        }
+    }
+}
+*/

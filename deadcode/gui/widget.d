@@ -59,7 +59,7 @@ class Widget : Stylable
 	string _name;
 
 	//@Persist
-	float zOrder;
+	// float zOrder;
 
 	//@Persist
 	bool acceptsKeyboardFocus;
@@ -241,12 +241,16 @@ class Widget : Stylable
     */
     @property Style style()
 	{
-        if (!_recalculateStyle)
+		if (id == 8)
+		{
+			int a = 0;
+			a++;
+		}
+
+        if (!_recalculateStyle && _computedStyle !is null)
             return _computedStyle;
 
 		version (Profiler) auto frameZonex = Zone(profiler, "CalcStyle");
-
-        _recalculateStyle = false;
 
         //if (!_recalcTarget
         //    return _computedStyle;
@@ -353,6 +357,7 @@ class Widget : Stylable
             lastStyleVersion = _computedStyle.currentVersion;
         }
 
+		_recalculateStyle = false;
 		return _computedStyle;
 	}
 
@@ -441,6 +446,14 @@ class Widget : Stylable
     {
         return _visible;
     }
+
+	@property bool ancestorsVisible() nothrow @safe
+	{
+		auto w = this;
+		while (w !is null && w.visible)
+			w = w.parent;
+		return w is null;
+	}
 
     @property void visible(bool v)
     {
@@ -569,7 +582,7 @@ class Widget : Stylable
 //			}
 		}
 
-		const(Rectf) rect() const
+		Rectf rect() const
 		{
 			return _rect;
 		}
@@ -842,6 +855,7 @@ class Widget : Stylable
 		}
 
 		void onMouseClickCallback(EventUsed delegate(Event, Widget) del) nothrow { eventCallbackHelper(GUIEvents.mouseClicked, del); }
+		void onMouseMoveCallback(EventUsed delegate(Event, Widget) del) nothrow { eventCallbackHelper(GUIEvents.mouseMove, del); }
 		void onMouseOverCallback(EventUsed delegate(Event, Widget) del) nothrow { eventCallbackHelper(GUIEvents.mouseOver, del); }
 		void onMouseOutCallback(EventUsed delegate(Event, Widget) del) nothrow { eventCallbackHelper(GUIEvents.mouseOut, del); }
 		void onMouseWheelCallback(EventUsed delegate(MouseWheelEvent, Widget) del) nothrow { eventCallbackHelper(GUIEvents.mouseWheel, del); }
@@ -925,7 +939,18 @@ class Widget : Stylable
 
 	@property void parent(Widget newParent) nothrow
 	{
-		if (newParent is _parent)
+        //debug 
+        //{
+        //    auto np = newParent;
+        //    while (np !is null)
+        //    {
+        //        if (np is this)
+        //            throw new Exception("Trying the set new parent of widget where the widget itself it new the parent or an ancestor of the new parent");
+        //        np = np.parent;
+        //    }
+        //}
+
+        if (newParent is _parent)
 			return; // noop
 
 		if (newParent is null)
@@ -1010,27 +1035,20 @@ class Widget : Stylable
         withThisWidget.recalculateStyle();
 	}
 
-    void moveChildAfter(int moveThisChildAtIndex, int afterThisChildAtIndex)
+    void moveChildToIndex(int moveThisChildAtIndex, int toThisIndex)
     {
         import std.exception;
         enforce(!_children.empty);
-        enforce(moveThisChildAtIndex < _children.length);
-        enforce(afterThisChildAtIndex < _children.length);
-        enforce(moveThisChildAtIndex != afterThisChildAtIndex);
+        
+        if (moveThisChildAtIndex == toThisIndex)
+            return;
 
-        auto w = _children[moveThisChildAtIndex];
-        if (moveThisChildAtIndex < afterThisChildAtIndex)
-        {
-            for (int i = moveThisChildAtIndex; i < afterThisChildAtIndex; ++i)
-                _children[i] = _children[i+1];
-            _children[afterThisChildAtIndex] = w;
-        }
-        else
-        {
-            for (int i = moveThisChildAtIndex; i > afterThisChildAtIndex+1; --i)
-                _children[i] = _children[i-1];
-            _children[afterThisChildAtIndex + 1] = w;
-        }
+        enforce(moveThisChildAtIndex < _children.length);
+        enforce(toThisIndex < _children.length);
+
+        //auto w = _children[moveThisChildAtIndex];
+		swapRanges(_children[moveThisChildAtIndex..moveThisChildAtIndex+1], _children[toThisIndex..toThisIndex+1]);
+        // _children.replaceInPlace(toThisIndex, toThisIndex + 1, _children[moveThisChildAtIndex..moveThisChildAtIndex+1]); 
     }
 
     //void moveChildBefore(Widget moveThisChild, Widget afterThisChild)
@@ -1071,13 +1089,23 @@ class Widget : Stylable
 	 */
 	protected bool removeChild(Widget toRemove) nothrow
 	{
-		static import std.array;
-        size_t len = _children.length;
-		_children = std.array.array(std.algorithm.filter!((Widget tw) { return tw.id != toRemove.id; })(_children));
-		return len != _children.length;
+		auto idx = _children.countUntil!((a,b) => a.id == b.id)(toRemove);
+		bool found = idx != -1;
+		if (found)
+			_children = _children.remove(idx);
+		return found;
 	}
 
-	@property Widgets children() nothrow
+	protected bool removeChildAt(int idx) nothrow
+	{
+		bool found = idx > 0 && idx < _children.length;
+		if (found)
+			_children = _children.remove(idx);
+		return found;
+	}
+
+
+	@property inout(Widgets) children() inout nothrow pure @safe
 	{
 		return _children;
 	}
@@ -1176,7 +1204,7 @@ class Widget : Stylable
 		//this(Rectf(x, y, x+w, y+h), _parentId);
 		manualLayout = false;
 		_visible = true;
-		zOrder = 0f;
+		// zOrder = 0f;
 		//_sizeDirty = true;
 		_rect = Rectf(x, y, width, height);
 		id = _id == NullWidgetID ? _nextID++ : _id;
@@ -1366,8 +1394,17 @@ class Widget : Stylable
 	{
         auto win = window;
         auto r = win.rect;
+
+		static bool compare(Widget a, Widget b)
+		{
+			return a.style.zIndex < b.style.zIndex;
+		}
+
 		// Draw children
-		foreach (w; children)
+		Widget[128] sortedChildren;
+		sortedChildren[0..children.length] = children[];
+		
+		foreach (w; sortedChildren[0..children.length].sort!compare)
 		{
 			auto drawRect = r.clip(w.rect);
             if (!drawRect.empty || this == win)
@@ -1481,25 +1518,34 @@ class Widget : Stylable
 
         children.map!"a.rect".copy(origChildrenRects);
 
-        import std.stdio;
-        writeln(name);
-        writeln(children.map!(a => "   Pre " ~ a.name ~ ": " ~ rect.toString()));
+		//import std.stdio;
+		//writeln(name);
+		//writeln(children.map!(a => "   Pre " ~ a.name ~ ": " ~ rect.toString()));
         calculateChildrenSizes(positionReference);
-        writeln(children.map!(a => "   SZ  " ~ a.name ~ ": " ~ rect.toString()));
+//        writeln(children.map!(a => "   SZ  " ~ a.name ~ ": " ~ rect.toString()));
 		layoutChildren(false, positionReference);
-        writeln(children.map!(a => "   LO  " ~ a.name ~ ": " ~ rect.toString()));
+//        writeln(children.map!(a => "   LO  " ~ a.name ~ ": " ~ rect.toString()));
 		calculateChildrenPositions(positionReference);
-        writeln(children.map!(a => "   PS  " ~ a.name ~ ": " ~ rect.toString()));
+//        writeln(children.map!(a => "   PS  " ~ a.name ~ ": " ~ rect.toString()));
 
-        auto newChildrenRects = children.map!"a.rect";
-        int idx = 0;
-        foreach (ref childRect; newChildrenRects)
-        {
-            Rectf origRect = origChildrenRects[idx];
-            if (!childRect.isIdentical(origRect))
-                children[idx].forceDirty();
-            idx++;
-        }
+		if (children.length != origChildrenRects.length)
+		{
+			foreach (c; children)
+				c.forceDirty();
+		}
+		else
+		{
+			// TODO: Make sure children are the same!
+			auto newChildrenRects = children.map!"a.rect";
+			int idx = 0;
+			foreach (ref childRect; newChildrenRects)
+			{
+				Rectf origRect = origChildrenRects[idx];
+				if (!childRect.isIdentical(origRect))
+					children[idx].forceDirty();
+				idx++;
+			}
+		}
 
 		// Positions and sizes for children are now set and we can recurse
 		layoutRecurse(fit, positionReference);
@@ -1613,7 +1659,9 @@ class Widget : Stylable
 	}
 }
 
+/*
 bool isInFrontOf(Widget isThis, Widget inFrontOfThis)
 {
 	return isThis.window.isWidgetInFrontOfWidget(isThis, inFrontOfThis);
 }
+*/

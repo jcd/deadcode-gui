@@ -45,7 +45,7 @@ class Rule
 	}
 
     abstract protected bool eval(RuleEnv env);
-    abstract bool isEqual(Object other) const pure nothrow @safe;
+    abstract bool isEqual(Object other) const;
 
     bool test(RuleEnv env)
 	{
@@ -101,7 +101,7 @@ class EqualRule(Type) : Rule
 		value = v;
 	}
 
-    override bool isEqual(Object other) const pure nothrow @safe
+    override bool isEqual(Object other) const
     {
         auto o = cast(EqualRule!Type)other;
         return o !is null && key == o.key && negate == o.negate && value == o.value;
@@ -151,7 +151,7 @@ class RegexRule : Rule
 		re = regex(_re, flags);
 	}
 
-    override bool isEqual(Object other) const pure nothrow @safe
+    override bool isEqual(Object other) const
     {
         auto o = cast(RegexRule)other;
         return o !is null && key == o.key && negate == o.negate && re == o.re;
@@ -203,7 +203,7 @@ class RegexContainsRule : Rule
 		re = regex(_re, flags);
 	}
 
-    override bool isEqual(Object other) const pure nothrow @safe
+    override bool isEqual(Object other) const
     {
         auto o = cast(RegexContainsRule)other;
         return o !is null && key == o.key && negate == o.negate && re == o.re;

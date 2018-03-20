@@ -68,6 +68,11 @@ class Font : GFont, IResource!Font
 		}
 	}
 
+	Font interpolate(Font endValue, float delta)
+	{
+		return delta <= 0 ? this : endValue;
+	}
+
 private:
 	Manager _manager;
 	Handle _handle;

@@ -1,6 +1,6 @@
 module deadcode.gui.controls.tree;
 
-import deadcode.core.commandparameter;
+import deadcode.command.commandparameter;
 import deadcode.core.signals;
 import deadcode.gui.event;
 import deadcode.gui.layouts.directionallayout;
@@ -165,11 +165,11 @@ class Tree : Widget
         return null;
     }
 
-    this() nothrow
+    this() // nothrow
 	{
 		super();
 		root = this;
-		zOrder = 50;
+		styleOverride.zIndex = 50;
 		layout = new OldDirectionalLayout!false(false);
 	}
 
@@ -237,7 +237,7 @@ class Tree : Widget
 		auto leaf = new Tree();
         leaf.name = item.name ~ "/leaf";
 		leaf.parent = item;
-		leaf.zOrder = 100;
+		leaf.styleOverride.zIndex = 100;
 		leaf.commandCall = CommandCall(commandName, arguments);
 		leaf.onMouseClickCallback = (Event, Widget) {
 			// Need indirection through leaf in case leaf is being reparented at some point

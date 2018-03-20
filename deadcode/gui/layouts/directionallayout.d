@@ -214,7 +214,58 @@ class DirectionalLayout(bool isHorz) : ILayout
 
 		static if (isHorz)
 		{
-            assert(0);
+			assert(0);
+            /*
+            // Divide the current height into even horizontal pieces
+            int fractionalItems = 0;
+            float fixedPixels = 0;
+
+			foreach (w; children)
+			{
+				w.y = r.y;
+                if (w.style.height.isValid)
+                {
+                    float pixels = w.style.height.calculatePixels(r.h);
+                    w.w = pixels;
+                }
+                else
+                {
+                    w.h = r.h;
+                }
+
+                if (w.style.width.isValid)
+                {
+                    float pixels = w.style.width.calculatePixels(r.w);
+                    fixedPixels += pixels;
+                    w.w = pixels;
+                }
+                else
+                {
+                    // TODO: add a fractional css property instead of always using 1 as here
+                    fractionalItems += 1;
+                }
+			}
+
+            float widthLeft = r.w - fixedPixels;
+            float dW = widthLeft / fractionalItems;
+
+            if (widthLeft < 0) 
+                dW = 0;
+
+            foreach (w; children)
+			{
+                w.x = r.x;
+				if (w.style.width.isValid)
+                {
+                    r.x += w.w;
+                }
+                else
+                {
+                    w.w = dW;
+                    r.x += dW;
+                }
+			}
+            */
 		}
 		else
 		{

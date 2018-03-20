@@ -7,13 +7,14 @@
     "targetType": "library",
     "sourcePaths": [ "deadcode" ],
     "importPaths": [ "." ],
-	"dependencies": {
-		"std_data_json": "~>0.18.2",
-		"deadcode-animation" : ">=0.0.0",
-		"deadcode-graphics" : ">=0.0.0",
-		"deadcode-io" : ">=0.0.0",
-		"deadcode-edit" : ">=0.0.0"
-	},
+  "dependencies": {
+    "std_data_json": "~>0.18.2",
+    "deadcode-animation": ">=0.0.0",
+    "deadcode-graphics": ">=0.0.0",
+    "deadcode-io": ">=0.0.0",
+    "deadcode-edit": ">=0.0.0",
+    "deadcode-command": ">=0.0.0"
+  },
 	"dependencies-posix": {
 	    "x11": "~>1.0.8"
 	},	

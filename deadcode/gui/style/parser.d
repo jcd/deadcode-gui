@@ -16,6 +16,7 @@ import deadcode.gui.style.stylesheet;
 import deadcode.gui.style.types;
 
 import deadcode.math;
+import deadcode.util.string : munch;
 
 import std.conv;
 import std.range;
@@ -375,7 +376,6 @@ class StyleSheetParser
 			case ".font":
 				if (fontManager !is null)
 				{
-					// Let material manager handle this for us
 					style.font = fontManager.declare(theURI);
 				}
 				break;

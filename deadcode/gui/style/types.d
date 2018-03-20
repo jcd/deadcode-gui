@@ -365,6 +365,16 @@ enum CSSPosition : byte
 	absolute
 }
 
+bool isOutOfFlow(CSSPosition p)
+{
+	return p == CSSPosition.absolute || p == CSSPosition.fixed;
+}
+
+bool isContaining(CSSPosition p)
+{
+	return p == CSSPosition.relative || p == CSSPosition.absolute || p == CSSPosition.fixed;
+}
+
 struct CSSPositionMix
 {
 	CSSPosition cssPositionA;

@@ -2,7 +2,7 @@ module deadcode.gui.event;
 
 import deadcode.core.event;
 public import deadcode.core.event : EventUsed, Event;
-import deadcode.core.commandparameter;
+import deadcode.command.commandparameter;
 
 // import derelict.sdl2.sdl;
 import deadcode.gui.keycode;

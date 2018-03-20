@@ -430,23 +430,40 @@ public:
 	final bool ensureLoaded(Handle h)
 	{
 		ResourceState* rs = h in _resourcesByHandle;
-		enforceEx!ResourceException(rs, "Cannot load " ~ T.stringof ~ " resource from unknown handle");
+		return ensureLoaded(*rs);		
+	}
+
+	final bool ensureLoaded(ResourceState rs)
+	{
+		enforceEx!ResourceException(rs !is null, "Cannot load " ~ T.stringof ~ " resource from unknown handle");
 		if (rs.state >= LoadState.loading && rs.state <= LoadState.prepared)
 			return true; // already loaded => noop
 		if (rs.state == LoadState.error)
 			return false;
-		return load(*rs);
+		return load(rs);
 	}
 
 	final bool save(Handle h)
 	{
 		ResourceState* rs = h in _resourcesByHandle;
 		enforceEx!ResourceException(rs, "Cannot save " ~ T.stringof ~ " resource from unknown handle");
+		return save(*rs);
+	}
 
+	private final bool save(ResourceState rs)
+	{
 		if (rs.loader is null)
 			rs.loader = _defaultLoader;
 
 		return rs.loader.save(rs.resource, rs.uri);
+	}
+
+	final bool save(string uriString)
+	{
+		auto uri = new URI(uriString);
+		auto res = declareImpl(uri);
+		ResourceState rs = res[0];
+		return save(rs);
 	}
 
 	// Unload the specified resource from system. The resource can be loaded again using load().
@@ -525,7 +542,7 @@ public:
 	{
 		auto i = h in _resourcesByHandle;
 		if (i is null)
-			return null;
+			return def;
 		//if (!prepare(*i))
 		//	return null;
 		return i.resource;
@@ -536,6 +553,15 @@ public:
         import std.string : format;
 		return enforceEx!ResourceException(get(h, null),
 										   format("No %s with handle %s in manager", T.stringof, h));
+	}
+
+	final T get(string uriString, bool forceReload = false)
+	{
+		auto rst = declareImpl(new URI(uriString));
+		if (forceReload)
+			unload(rst[0]);
+		ensureLoaded(rst[0]);
+		return rst[0].resource;
 	}
 
 	final URI getURI(Handle h)
@@ -605,7 +631,6 @@ public:
 		}
 
 		import deadcode.core.path;
-
 
 		foreach (s; _serializers)
 		{
@@ -719,6 +744,33 @@ interface IResourceLoader(T)
 	*/
 	bool load(T r, URI uri);
 	bool save(T r, URI uri);
+}
+
+class ResourceLoaderFromCode(T) : IResourceLoader!T
+{
+	alias Dlg = bool delegate(T,URI);
+	private Dlg _loadDlg;
+	private Dlg _saveDlg;
+
+	this(Dlg loadDlg, Dlg saveDlg = null)
+	{
+		_loadDlg = loadDlg;
+		_saveDlg = saveDlg;
+	}
+
+	bool load(T r, URI uri)
+	{
+		if (_loadDlg is null)
+			return false;
+		return _loadDlg(r, uri);
+	}
+
+	bool save(T r, URI uri)
+	{
+		if (_saveDlg is null)
+			return false;
+		return _saveDlg(r, uri);
+	}
 }
 
 class ResourceSerializer(T)

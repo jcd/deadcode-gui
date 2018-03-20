@@ -585,18 +585,21 @@ class BoxModel
 									 worldRect.w - right - left, -top), verts); // top
 
 			r.x = worldRect.x2 - right;
+            r.w = right;
 			appendQuadVertices(r, verts); // top right
 
 			appendQuadVertices(Rectf(worldRect.x2 - right, worldRect.y - top,
 									 right, worldRect.h + top + bottom), verts); // right
 
 			r.y = worldRect.y2 + bottom;
+            r.h = -bottom;
 			appendQuadVertices(r, verts); // bottom right
 
 			appendQuadVertices(Rectf(worldRect.x + left, worldRect.y2 + bottom,
 									 worldRect.w - right - left, -bottom), verts); // bottom
 
 			r.x = worldRect.x;
+            r.w = left;
 			appendQuadVertices(r, verts); // bottom left
 
 			appendQuadVertices(Rectf(worldRect.x, worldRect.y - top,

@@ -1,7 +1,7 @@
 module deadcode.gui.resources.generic;
 
 import deadcode.core.path;
-
+import deadcode.core.signals;
 
 import deadcode.gui.locations;
 import deadcode.gui.resource;
@@ -91,6 +91,8 @@ class GenericResource : Resource!GenericResource
 	private static ClassInfo[string] typeNameToHelperMap;
 
 	bool includeHeader = true;
+
+	mixin Signal!(GenericResource) onSourceChanged;
 
 	interface IHelper
 	{
@@ -387,6 +389,16 @@ class GenericResourceManager : ResourceManager!GenericResource
 		return fm;
 	}
 
+	this()
+	{
+		onSourceChanged.connect(&handleSourceChanged);
+	}
+
+	private void handleSourceChanged(GenericResource r)
+	{
+		r.onSourceChanged.emit(r);
+	}
+
 	GenericResource create(T)(string name)
 	{
 		auto f = declare(name);
@@ -399,6 +411,17 @@ class GenericResourceManager : ResourceManager!GenericResource
 		auto f = declare(name);
 		f.data = value;
 		return f;
+	}
+
+	T getObject(T)(string uriString, bool forceReload = false, string key = null)
+	{
+		return get(uriString, forceReload).get!T(key);
+	}
+
+	void setObject(T)(string uriString, T obj, string key = null, bool forceReload = false)
+	{
+		auto r = get(uriString, forceReload);
+		r.set(obj);
 	}
 
     override bool unload(Handle h)

@@ -40,6 +40,19 @@ class GridLayout : ILayout
 		_count = count;
 	}
 
+    void setFixedColumn(int columnIndex, float fixedSize)
+    {
+        if (columnIndex >= fixedColumnSizes.length)
+		{
+            auto cols = columnIndex + 1;
+			auto d = cols - fixedColumnSizes.length;
+			fixedColumnSizes.length = cols;
+			fixedColumnSizes[$ - d..$] = -1f;
+		}
+
+        fixedColumnSizes[columnIndex] = fixedSize;
+    }
+
 	override protected void layout(Widget widget, bool fit)
 	{
 		// Get sized ready for the children so that any layouter have them

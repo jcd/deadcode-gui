@@ -1,6 +1,6 @@
 module deadcode.gui.controls.menu;
 
-import deadcode.core.command;
+import deadcode.command.command;
 import deadcode.core.signals;
 import deadcode.gui.controls.button;
 import deadcode.gui.controls.tree;
@@ -16,7 +16,8 @@ class Menu : Tree
 	Button menuButton;
 	CommandManager commandManager;
 
-	mixin Signal!(ICommand, CommandParameter[]) onMissingCommandArguments;
+	// (commandName, params)
+	mixin Signal!(string, CommandParameter[]) onMissingCommandArguments;
 
 	alias parent = Widget.parent;
     @property override void parent(Widget newParent) nothrow
@@ -45,7 +46,7 @@ class Menu : Tree
 
         menuButton.features ~= new WindowDragger();
 		menuButton.name = "menuButton";
-		menuButton.zOrder = 99;
+		menuButton.styleOverride.zIndex = 99;
 		menuButton.onMouseOverCallback = (Event, Widget) {
 			this.hidden = false;
 			return EventUsed.yes;
@@ -68,15 +69,11 @@ class Menu : Tree
 
 	private void onCommandCall(CommandCall cc)
 	{
-		auto cmd = commandManager.lookup(cc.name);
-		if (cmd is null)
-			return;
-
-		auto defs = cmd.getCommandParameterDefinitions();
+		auto defs = commandManager.getCommandParameterDefinitions(cc.name);
 		CommandParameter[] params;
 		if (defs is null || defs.setValues(params, cc.arguments))
 			commandManager.execute(cc);
 		else
-			onMissingCommandArguments.emit(cmd, params);
+			onMissingCommandArguments.emit(cc.name, params);
 	}
 }

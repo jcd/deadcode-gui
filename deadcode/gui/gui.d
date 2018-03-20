@@ -4,7 +4,6 @@ import core.time;
 import std.range;
 
 import deadcode.animation.timeline;
-import deadcode.core.command;
 import deadcode.core.coreevents;
 import deadcode.core.ctx;
 import deadcode.core.event;
@@ -14,12 +13,13 @@ import deadcode.graphics;
 import deadcode.gui.event;
 import deadcode.gui.keycode;
 import deadcode.gui.locations;
+import deadcode.gui.resource : ResourceLoaderFromCode;
 import deadcode.gui.resources;
 import deadcode.gui.style.manager;
 import deadcode.gui.window;
 import deadcode.io.iomanager;
 import deadcode.math; // Vec2f
-import deadcode.gui.style.stylesheet : createFallbackStyleSheet;
+import deadcode.gui.style.stylesheet : createFallbackStyleSheet, StyleSheet;
 
 import derelict.sdl2.sdl;
 
@@ -105,6 +105,7 @@ class GUI
         MainEventSource eventSource() { return _eventSource; };
         LocationsManager locationsManager() { return _locationsManager; }
         StyleSheetManager styleSheetManager() { return _styleSheetManager; }
+        GenericResourceManager genericResourceManager() { return _genericResourceManager; }
     }
 
 	mixin Signal!string onFileDropped;
@@ -146,6 +147,7 @@ class GUI
         _materialManager.setAsFallback();
 
 		_styleSheetManager = StyleSheetManager.create(_fileManager, _materialManager, _fontManager);
+		
 		_genericResourceManager = GenericResourceManager.create(_fileManager);
 
 		_locationsManager.addListener(_fontManager);
@@ -154,7 +156,13 @@ class GUI
 		_locationsManager.addListener(_materialManager);
 		_locationsManager.addListener(_styleSheetManager); 
         _timeline = new Timeline;
-		
+
+		_styleSheetManager.declare("builtin:gui", 
+									new ResourceLoaderFromCode!StyleSheet((StyleSheet s, URI uri) {
+										createFallbackStyleSheet(_fontManager.builtinFont, 
+																 _materialManager.builtinMaterial);
+										return true;
+									}));
 		// return g;
 
 		//locs.declare("file://foobar/lars/*");
@@ -752,10 +760,9 @@ class GUI
 	{
 		auto renderWin = new RenderWindow(name, width, height);
 
-        auto font = _fontManager.builtinFont;
-        auto mat = _materialManager.builtinMaterial;
-        auto ss = createFallbackStyleSheet(font, mat);
+		auto ss = styleSheetManager.get("builtin:gui");
 		auto win = new W(name, width, height, renderWin, ss);
+		
         win.timeline = _timeline;
 		if (_activeWindow is null)
 			_activeWindow = win;

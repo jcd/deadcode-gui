@@ -116,20 +116,22 @@ class Style
 		Material _background;
 
 		// value types
+		@NonBindable()
 		bool _wordWrap;  // bit 0
 
-		@Bindable()
+		@NonBindable()
 		Color _color;    // bit 1
 
-		@Bindable()
+		@NonBindable()
 		Color _backgroundColor;    // bit 2
 
-        int _zIndex; // bit 3
+		@NonBindable()
+		int _zIndex; // bit 3
 
 		@Bindable()
 		RectfOffset _padding;
 
-		@Bindable()
+		@NonBindable()
 		RectfOffset _backgroundSpriteBorder;
 
 		@NonBindable()
@@ -291,6 +293,7 @@ class Style
 			_maxHeight = v;
 		}
 
+		@Bindable()
 		Font font()
 		{
 			auto f = _font;
@@ -299,11 +302,13 @@ class Style
 			return f;
 		}
 
+		@Bindable()
 		void font(Font f)
 		{
 			_font = f;
 		}
 
+		@Bindable()
 		Material background()
 		{
 			auto b = _background;
@@ -312,49 +317,62 @@ class Style
 			return b;
 		}
 
+		@Bindable()
 		void background(Material b)
 		{
 			_background = b;
 		}
 
+		@Bindable()
 		Color color() const
 		{
 			return _color;
 		}
 
+		@Bindable()
 		void color(Color c)
 		{
 			_nullFields |= 2;
 			_color = c;
 		}
-
+		
+		@Bindable()
 		Color backgroundColor() const
 		{
 			return _backgroundColor;
 		}
 
+		@Bindable()
 		void backgroundColor(Color c)
 		{
 			_nullFields |= 4;
 			_backgroundColor = c;
 		}
 
+		@Bindable()
 		int zIndex() const
 		{
 			return _zIndex;
 		}
 
-		void zIndex(int i)
+		@Bindable()
+		void zIndex(int i) pure @safe nothrow
 		{
-			_nullFields |= 8;
 			_zIndex = i;
 		}
 
-		bool wordWrap() const
+		bool zIndexIsAuto() const pure @safe nothrow
+		{
+			return _zIndex == typeof(_zIndex).min;
+		}
+
+		@Bindable()
+		bool wordWrap() const pure @safe nothrow
 		{
 			return _wordWrap;
 		}
 
+		@Bindable()
 		void wordWrap(bool w)
 		{
 			_nullFields |= 1;
@@ -372,11 +390,25 @@ class Style
 			_padding = w;
 		}
 
+		@Bindable()
 		RectfOffset backgroundSpriteBorder() const
 		{
-			return _backgroundSpriteBorder;
+			RectfOffset r = _backgroundSpriteBorder;
+			if (r.top.isNaN())
+				r.top = 0; // default to 0 offset
+
+			if (r.left.isNaN())
+				r.left = 0; // default to 0 offset
+
+			if (r.right.isNaN())
+				r.right = 0; // default to 0 offset
+
+			if (r.bottom.isNaN())
+				r.bottom = 0; // default to 0 offset
+			return r;
 		}
 
+		@Bindable()
 		void backgroundSpriteBorder(RectfOffset w)
 		{
 			_backgroundSpriteBorder = w;
@@ -455,12 +487,14 @@ class Style
 	{
 		id = _nextID++;
 		this._name = name;
+		zIndex = typeof(zIndex).min;
 	}
 
 	this(StyleSheet s) nothrow @safe
 	{
 		id = _nextID++;
 		styleSheet = s;
+		zIndex = typeof(zIndex).min;
 	}
 
     final Rectf getBackgroundSpriteRectForFrame(int n)
@@ -799,11 +833,8 @@ class Style
 			_nullFields |= 4;
 		}
 
-        if (! (_nullFields & 8) && (sf._nullFields & 8) )
-		{
+        if (zIndexIsAuto() && !sf.zIndexIsAuto())
 			_zIndex = sf._zIndex;
-			_nullFields |= 8;
-		}
 
 		setInvalid(sf._padding, _padding);
 		setInvalid(sf._backgroundSpriteBorder, _backgroundSpriteBorder);

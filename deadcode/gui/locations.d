@@ -36,22 +36,25 @@ class Locations : Resource!Locations
 		{
 			import std.algorithm;
 			import std.string;
+			_uriPattern = urip;
 
 			// Base path is the part the does not contain glob chars or a partial name
 			auto __baseURI = urip;
 
 			auto idx = __baseURI.countUntil('*', '?', '[', '{');
 			if (idx >= 0)
+            {
 				__baseURI = __baseURI[0..idx];
-
-			auto idx2 = __baseURI.lastIndexOf('/');
-			if (idx2 < 0)
-				__baseURI.length = 0;
-			else
-				__baseURI = __baseURI[0..idx2+1];
-
+            }
+            else
+            {
+			    auto idx2 = __baseURI.lastIndexOf('/');
+			    if (idx2 < 0)
+				    __baseURI.length = 0;
+			    else
+				    __baseURI = __baseURI[0..idx2+1];
+            }
 			_baseURI = new URI(__baseURI);
-			_uriPattern = urip;
 		}
 
 		URI baseURI()
@@ -181,8 +184,8 @@ class LocationsManager : ResourceManager!Locations
 		//assert(res.uri.toString()[0..5] == "scan:");
 
 		// res.uriPattern = res.uri.toString()[5..$]; // strip "scan:"
-		res.uriPattern = res.uri.toString();
-		string baseURI = res._baseURI.asLocalFilePath();
+		res.uriPattern = res.uri.asLocalFilePath();
+		string baseURI = res._baseURI.toString();
 
 		auto locs = appender!(Location[])();
 

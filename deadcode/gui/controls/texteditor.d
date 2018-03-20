@@ -1,6 +1,6 @@
 module deadcode.gui.controls.texteditor;
 
-import deadcode.core.command : CommandManager;
+import deadcode.command.command : CommandManager;
 import deadcode.core.signals;
 import deadcode.edit.buffer;
 import deadcode.edit.bufferview;
@@ -140,6 +140,7 @@ class TextEditor : Widget
         if (d is null)
         {
             rsd = new RegionSetDecoration(cssClassName);
+			rsd.parent = this;
             decorations[name] = rsd;
         }
         else
@@ -187,6 +188,190 @@ class TextEditor : Widget
 			auto ev = cast(CommandEvent)event;
 			switch (ev.commandName)
 			{
+				case "edit.deleteCharBefore":
+					bufferView.remove(-1);
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.deleteCharAfter":
+					bufferView.remove(1);
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.cursorToBeginningOfLine":
+					bufferView.cursorToBeginningOfLine();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.cursorToEndOfLine":
+					bufferView.cursorToEndOfLine();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.cursorToWordBefore":
+					bufferView.cursorToWordBefore();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.cursorToWordAfter":
+					bufferView.cursorToWordAfter();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.selectToBeginningOfLine":
+					bufferView.selectToBeginningOfLine();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.selectToEndOfLine":
+					bufferView.selectToEndOfLine();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.selectToWordBefore":
+					bufferView.selectToWordBefore();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.selectToWordAfter":
+					bufferView.selectToWordAfter();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.deleteToWordBefore":
+					bufferView.deleteToWordBefore();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.deleteToWordAfter":
+					bufferView.deleteToWordAfter();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.deleteToEndOfLine":
+					bufferView.deleteToEndOfLine();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.clear":
+					bufferView.clear();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.undo":
+					bufferView.undo();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.redo":
+					bufferView.redo();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.copy":
+					bufferView.copy();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.paste":
+					bufferView.paste();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.pasteCycle":
+					bufferView.pasteCycle();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.cut":
+					bufferView.cut();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.cursorToCharBefore":
+					bufferView.cursorLeft(1);
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.cursorToCharAfter":
+					bufferView.cursorRight(1);
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.cursorToCharAbove":
+					bufferView.cursorUp(1);
+					int lineNum = bufferView.lineNumber;
+					if (lineNum < bufferView.lineOffset)
+						bufferView.scrollUp();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.cursorToCharBelow":
+					bufferView.cursorDown();
+					int lineNum = bufferView.lineNumber;
+					if (lineNum > (bufferView.lineOffset + bufferView.visibleLineCount))
+						bufferView.scrollDown();
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.scrollUp":
+					bufferView.scrollUp(1);
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.scrollDown":
+					bufferView.scrollDown(1);
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.scrollPageUp":
+					foreach (i; 0 .. bufferView.visibleLineCount)
+					{
+						// TODO: optimize
+						bufferView.scrollUp();
+					}
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.scrollPageDown":
+					foreach (i; 0 .. bufferView.visibleLineCount)
+					{
+						// TODO: optimize
+						bufferView.scrollDown();
+					}
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.selectToCharBefore":
+					bufferView.selectLeft(1);
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.selectToCharAfter":
+					bufferView.selectRight(1);
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.selectToCharAbove":
+					bufferView.selectUp(1);
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.selectToCharBelow":
+					bufferView.selectDown(1);
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.selectPageUp":
+					foreach (i; 0 .. bufferView.visibleLineCount)
+					{
+						bufferView.selectUp();
+						// TODO: optimize
+						bufferView.scrollUp();
+					}
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.selectPageDown":
+					if (bufferView.bufferEndOffset == bufferView.length)
+					{
+						// end of buffer already in view
+						foreach (i; 0 .. bufferView.visibleLineCount)
+							bufferView.selectDown();
+					}
+					else
+					{
+						foreach (i; 0 .. bufferView.visibleLineCount)
+						{
+							bufferView.selectDown();
+
+							// TODO: optimize
+							bufferView.scrollDown();
+						}
+					}
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.insert":
+					if (ev.arguments.length > 0)
+						bufferView.insert(ev.arguments[0].get!string());
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
+				case "edit.cursorToLine":
+					if (ev.arguments.length > 0)
+					{
+						auto i = ev.arguments[0].peek!int;
+						assert(i !is null);
+						bufferView.cursorToLine(*i);
+					}
+					renderer.cursorVisible = true;
+					return EventUsed.yes;
 				case "navigate.left":
 					bufferView.cursorLeft(1);
 					renderer.cursorVisible = true;
@@ -506,7 +691,7 @@ class TextEditor : Widget
         auto last = bufferView.buffer.next(ends[1]); // bump it to after the newline in order to have a region for empty lines also.
         auto hl = getRegionSet("lineHighlight");
         //auto hl = getOrCreateHighlighter("lineHighlight");
-        hl.clear();
+        hl.clear();	
         hl.set(ends[0], last);
     }
 

@@ -483,7 +483,7 @@ class StyleSheet : Resource!StyleSheet
 
 		//if (classNames.length != 0 && classNames[0] == "commandEntryField" )
 		//if (w.name == "commandEntryField" || w.name == "command")
-		//{
+		//{1wq3s
 		//    string wname = w.name;
 		//    int a = 3;
 		//}
@@ -656,7 +656,7 @@ class StyleSheetSerializer : ResourceSerializer!StyleSheet
 		{
 			import std.stdio;
 			foreach (m; parser.errors)
-				writeln(m.message);
+				writeln(m.message, m.line);
 		}
 	}
 

@@ -570,6 +570,7 @@ class RegionSetDecoration : Stylable
 	StyleSheet styleSheet;
     Style style;
 	bool mergeBorders;
+	Stylable _parent;
 
 	// Stylable interface
 	@property
@@ -585,7 +586,9 @@ class RegionSetDecoration : Stylable
 		bool isMouseOver() const pure nothrow @safe { return false; }
 		bool isMouseDown() const pure nothrow @safe { return false; }
         bool isVisible() const nothrow @safe { return true; }
-		Stylable parent() pure nothrow @safe  { return null; }
+		Stylable parent() pure nothrow @safe  { return _parent; }
+		void parent(Stylable p) { _parent = p; }
+
 	}
 
 	this(string className)

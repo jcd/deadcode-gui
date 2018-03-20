@@ -88,6 +88,11 @@ class Material : deadcode.graphics.material.Material, IResource!Material
 		}
 	}
 
+    Material interpolate(Material endValue, float delta)
+	{
+		return delta <= 0 ? this : endValue;
+	}
+
 	Manager _manager;
 	Handle _handle;
 	string _name;

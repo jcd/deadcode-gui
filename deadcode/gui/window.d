@@ -1,6 +1,7 @@
 module deadcode.gui.window;
 
 import core.time;
+import std.algorithm : commonPrefix, filter, find;
 import std.range;
 import std.stdio;
 import std.typecons;
@@ -194,6 +195,11 @@ class Window : deadcode.gui.widget.Widget
         }
 	}
 
+    void focus()
+    {
+        _renderTarget.focus();
+    }
+
 	void repaint()
 	{
 		foreach (wID, w; widgets)
@@ -243,6 +249,7 @@ class Window : deadcode.gui.widget.Widget
 		widgetNameMap[n] = w;
 	}
 
+	/*
 	package bool isWidgetInFrontOfWidget(Widget isThis, Widget inFrontOfThis)
 	{
 		if (isThis.zOrder > inFrontOfThis.zOrder)
@@ -260,7 +267,7 @@ class Window : deadcode.gui.widget.Widget
 		assert(0);
 		// return false;
 	}
-
+*/
 	package void emitResizeEvent()
 	{
 		Vec2f sz = super.size;
@@ -344,27 +351,120 @@ class Window : deadcode.gui.widget.Widget
 		_mouseWidgetStackIDs.length = 0;
 		_mouseWidgetStackIDs.assumeSafeAppend();
 
-		foreach (k; widgets.keys)
+		static void buildStackingContext(Widget w, ref int[] stackingContext)
 		{
-			Widget w = widgets[k];
-
-			//std.stdio.writeln(w.name, " visible ", w.visible, w.rect);
-			//if (w.visible && w.rectStyled.contains(p))
-			if (w.visible && w.rect.contains(p))
+			stackingContext.length = 0;
+			stackingContext ~= w._computedStyle.zIndex;
+			w = w.parent;
+			
+			while (w !is null)
 			{
-				_mouseWidgetStackIDs ~= w.id;
-
-				//std.stdio.writeln("hit ", w.name);
-                // TODO: make proper z-index stack order css property
-				bool isInFront = cur is null ||
-					w.zOrder > cur.zOrder || // Order is prioritized
-					(w.zOrder == cur.zOrder && (w.isDecendantOf(cur) || (w.style.zIndex > cur.style.zIndex && !cur.isDecendantOf(w)) )); // And if order is equal then test if in same branch
-				if (isInFront)
+				Style s = w._computedStyle;
+				if (s.position != CSSPosition.static_ && !s.zIndexIsAuto)
 				{
-					//std.stdio.writeln(w.name, " desc of ", cur is null ? "null" : cur.name, " rect ", w.rect.pos.v, w.rect.size.v, p.v);
-					cur = w;
+					// new context.
+					stackingContext ~= s.zIndex;
+				}
+				w = w.parent;
+			}
+		}
+
+		enum StackingContextRelation
+		{
+			equal,
+			above,
+			below
+		}
+
+		static StackingContextRelation isWidgetAbove(int[] stackingContextThis, int[] isAboveThisStackingContext)
+		{
+			auto r1 = stackingContextThis.retro;
+			auto r2 = isAboveThisStackingContext.retro;
+
+			auto p = commonPrefix(r1, r2);
+
+			auto r1p = r1.dropExactly(p.length);
+			auto r2p = r2.dropExactly(p.length);
+
+			if (r1p.length != 0 && r2p.length != 0)
+			{
+				if (r1p[0] > r2p[0])
+					return StackingContextRelation.above;
+				else if (r1p[0] < r2p[0])
+					return StackingContextRelation.below;
+				
+				assert(0);
+			}
+			
+			auto rxp = r1p.length == 0 ? r2p : r1p;
+			rxp = rxp.find!"a != 0";
+			if (rxp.empty)
+				return StackingContextRelation.equal;
+			else
+			{
+				if (rxp[0] > 0)
+				{
+					return r1p.length != 0 ? StackingContextRelation.above : StackingContextRelation.below;
+				}
+				else
+				{
+					assert(rxp[0] < 0);
+					return r1p.length == 0 ? StackingContextRelation.above : StackingContextRelation.below;
 				}
 			}
+		}
+
+		int[] stackingContextForTopWidget;
+		int[] stackingContextForCurrentWidget;
+
+		auto hitWidgets = widgets.byValue.filter!(a => a.visible && a.rect.contains(p) && a.ancestorsVisible);
+
+		foreach (w; hitWidgets)
+		{
+			//std.stdio.writeln(w.name, " visible ", w.visible, w.rect);
+			//if (w.visible && w.rectStyled.contains(p))
+			_mouseWidgetStackIDs ~= w.id;
+
+			buildStackingContext(w, stackingContextForCurrentWidget);
+			if (stackingContextForTopWidget.empty)
+			{
+				cur = w;
+			}
+			else
+			{
+				auto a = isWidgetAbove(stackingContextForCurrentWidget, stackingContextForTopWidget);
+				final switch (a) with (StackingContextRelation)
+				{
+					case above:
+						cur = w;
+						break;
+					case below:
+						break;
+					case equal:
+						if (w.isDecendantOf(cur))
+							cur = w;
+						break;
+				}
+			}
+
+			if (cur is w)
+			{
+				stackingContextForTopWidget.length = stackingContextForCurrentWidget.length;
+				stackingContextForTopWidget[] = stackingContextForCurrentWidget[];
+			}
+
+					
+					
+			//std.stdio.writeln("hit ", w.name);
+            // TODO: make proper z-index stack order css property
+//				bool isInFront = cur is null ||
+//					w.zOrder > cur.zOrder || // Order is prioritized
+//					(w.zOrder == cur.zOrder && (w.isDecendantOf(cur) || (w.style.zIndex > cur.style.zIndex && !cur.isDecendantOf(w)) )); // And if order is equal then test if in same branch
+//				if (isInFront)
+//				{
+				//std.stdio.writeln(w.name, " desc of ", cur is null ? "null" : cur.name, " rect ", w.rect.pos.v, w.rect.size.v, p.v);
+//					cur = w;
+//				}
 		}
 		return cur;
 	}
@@ -486,6 +586,18 @@ class Window : deadcode.gui.widget.Widget
 
 	void setKeyboardFocusWidget(WidgetID wid) nothrow
 	{
+		static int depth = 0;
+
+		depth++;
+		scope(exit)
+			depth--;
+
+		if (depth > 3)
+		{
+			depth++;
+			depth--;
+		}
+
 		// Find widget that accepts keyboard focus from wid
 		// and though parents if any. This bubbling is not handled by
 		// the normal widget.send(..) mechanism because we need to
@@ -735,6 +847,7 @@ TODO:
 				win._mouseWidgetID = win._mouseGrabbedByWidgetID;
 
 			auto result = GUIEvents.dispatch(this, event);
+			
 
 			if (hasPosition)
 				win._lastMouseWidgetID = win._mouseWidgetID;
@@ -954,10 +1067,10 @@ TODO:
 			return EventUsed.no;
 		}
 
-		EventUsed onCommandEvent(CommandEvent event)
-		{
-			return dispatchToFocussedWidget(event);
-		}
+		//EventUsed onCommandEvent(CommandEvent event)
+		//{
+		//    return dispatchToFocussedWidget(event);
+		//}
 
 		EventUsed onKeyPressedEvent(KeyPressedEvent event)
 		{
@@ -1008,6 +1121,11 @@ TODO:
 				w.recalculateStyle();
 			}
 			return EventUsed.yes; // we recalculated style for all widgets and thus used the event
+		}
+
+		EventUsed onCommandEvent(CommandEvent event)
+		{
+			return dispatchToFocussedWidget(event);
 		}
 	}
 }

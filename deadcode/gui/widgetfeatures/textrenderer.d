@@ -38,7 +38,6 @@ struct GlyphHit
 class TextRenderer(Text) : WidgetFeature, Stylable
 {
 	import deadcode.edit.buffer;
-	import deadcode.core.command;
 
 	// Stylable interface
 	@property
@@ -488,14 +487,15 @@ class TextRenderer(Text) : WidgetFeature, Stylable
             {
                 _curClasses[0] = "";
                 Style style = styleSheet.getStyle(this);
-                _layout.add(text[lastEndIdx .. r.a], style);
+				auto rng = text[lastEndIdx .. r.a];
+                _layout.add(rng, style, visibleLineCount);
             }
 
 			_curClasses[0] = styleName;
 			Style style = styleName is null ? widget.style : styleSheet.getStyle(this);
             if (style.font is null)
                 break;
-            _layout.add(text[r.a .. r.b], style);
+            _layout.add(text[r.a .. r.b], style, visibleLineCount);
             lastEndIdx = r.b;
 
 //            //style.font.updateFontMap();
