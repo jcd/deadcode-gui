@@ -138,13 +138,13 @@ class DockHost(bool isHorz) : Widget
 		size_t numChildren = children.length;
 
 		// Remove any splitters from front and end of children
-		int idx = 0;
+		size_t idx = 0;
 		
 		// Remove splitters before first docked widget if any
 		while (idx < children.length && children[idx].style.position.isOutOfFlow)
 		{
 			if (cast(DockHostSplitter)children[idx] !is null)
-				removeChildAt(idx); // Splitters in as first children should be removed
+				removeChildAt(cast(int)idx); // Splitters in as first children should be removed
 			else
 				idx++; // Other out of flow children should just stay
 		}
@@ -154,7 +154,7 @@ class DockHost(bool isHorz) : Widget
 		while (idx < children.length && children[idx].style.position.isOutOfFlow)
 		{
 			if (cast(DockHostSplitter)children[idx] !is null)
-				removeChildAt(idx); // Splitters in as first children should be removed
+				removeChildAt(cast(int)idx); // Splitters in as first children should be removed
 			idx--; // Other out of flow children should just stay
 		}
 		
@@ -203,7 +203,7 @@ class DockHost(bool isHorz) : Widget
 				else
 				{
 					// Two splitters in a row should be collapsed
-					removeChildAt(a[0]);
+					removeChildAt(cast(int)a[0]);
 				}
 			}
 			else
@@ -215,7 +215,7 @@ class DockHost(bool isHorz) : Widget
 					// So last was a docked widget and this is also a widget. We need to insert a splitter.
 					activeSplitter = new DockHostSplitter();
 					activeSplitter.parent = this;
-					moveChildToIndex(_children.length-1, a[0]+1);
+					moveChildToIndex(cast(int)_children.length-1, cast(int)a[0]+1);
 					activeSplitter.styleOverride.position = CSSPosition.absolute;
 					activeSplitter.styleOverride.zIndex = 100;
 					lastRect = a[1].rect;
