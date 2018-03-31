@@ -61,7 +61,7 @@ class TabWidget : Widget
         void currentIndex(int index)
         {
             if (index >= _tabSelector.children.length)
-                index = _tabSelector.children.length - 1;
+                index = cast(int)_tabSelector.children.length - 1;
             
             if (index == currentIndex)
                 return;
@@ -154,7 +154,7 @@ class TabWidget : Widget
         if (index < 0)
             index = 0;
         
-        auto childCount = _tabSelector.children.length;
+        auto childCount = cast(int)_tabSelector.children.length;
         if (index > childCount)
             index = childCount; // clamp
 
@@ -170,8 +170,8 @@ class TabWidget : Widget
         tabButton.parent = _tabSelector;
         w.parent = _tabView;
 
-        _tabSelector.moveChildToIndex(_tabSelector.children.length - 1, index);
-        _tabView.moveChildToIndex(_tabView.children.length - 1, index);
+        _tabSelector.moveChildToIndex(cast(int)_tabSelector.children.length - 1, index);
+        _tabView.moveChildToIndex(cast(int)_tabView.children.length - 1, index);
 
         if (currentIndex == -1)
             currentIndex = index;

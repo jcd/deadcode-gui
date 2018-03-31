@@ -1,7 +1,7 @@
 module deadcode.gui.event;
 
 import deadcode.core.event;
-public import deadcode.core.event : EventUsed, Event;
+public import deadcode.core.event : EventUsed, Event, EventType;
 import deadcode.command.commandparameter;
 
 // import derelict.sdl2.sdl;
@@ -155,7 +155,7 @@ bool isExactlyPressed(MouseButtonFlag state, MouseButtonFlag isThisDown) pure no
 abstract class GUIEvent : Event
 {
 	import deadcode.gui.widget : Widget;
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid) @nogc
 	{
 		windowID = wid;
@@ -166,7 +166,7 @@ abstract class GUIEvent : Event
 
 class StyleSheetChangedEvent : GUIEvent
 {
-	private this() {}
+	/*private*/ this() {}
     this(WindowID wid)
 	{
 		super(wid);
@@ -180,7 +180,7 @@ class CompletedEvent : Event
 
 abstract class MouseEvent : GUIEvent 
 {
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid, MouseID mid, KeyMod mods) @nogc
 	{
 		super(wid);
@@ -200,7 +200,7 @@ interface IWidgetAware
 class MouseMoveEvent : MouseEvent
 {
     import deadcode.gui.widget : Widget;
-    private this() {}
+    /*private*/ this() {}
     this(WindowID wid, MouseID mid, KeyMod mods, Vec2f pos, Vec2f rel, MouseButtonFlag btns) @nogc
 	{
 		super(wid, mid, mods);
@@ -237,7 +237,7 @@ class MouseMoveEvent : MouseEvent
 abstract class MouseButtonEvent : MouseEvent
 {
 	import deadcode.gui.widget : Widget;
-    private this() {}
+    /*private*/ this() {}
     this(WindowID wid, MouseID mid, KeyMod mods, Vec2f pos, int btnChanged, MouseButtonFlag btns)
 	{
 		super(wid, mid, mods);
@@ -254,7 +254,7 @@ abstract class MouseButtonEvent : MouseEvent
 class MouseOverEvent : MouseEvent
 {
     import deadcode.gui.widget : Widget;
-    private this() {}
+    /*private*/ this() {}
     this(WindowID wid, MouseID mid, KeyMod mods, Widget ovrWidget, Widget utWidget)
 	{
 		super(wid, mid, mods);
@@ -268,7 +268,7 @@ class MouseOverEvent : MouseEvent
 class MouseOutEvent : MouseEvent
 {
     import deadcode.gui.widget : Widget;
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid, MouseID mid, KeyMod mods, Widget ovrWidget, Widget utWidget)
 	{
 		super(wid, mid, mods);
@@ -282,7 +282,7 @@ class MouseOutEvent : MouseEvent
 class MousePressedEvent : MouseButtonEvent
 {
     import deadcode.gui.widget : Widget;
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid, MouseID mid, KeyMod mods, Vec2f pos, int btnChanged, MouseButtonFlag btn)
 	{
 		super(wid, mid, mods, pos, btnChanged, btn);
@@ -291,7 +291,7 @@ class MousePressedEvent : MouseButtonEvent
 
 class MouseReleasedEvent : MouseButtonEvent
 {
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid, MouseID mid, KeyMod mods, Vec2f pos, int btnChanged, MouseButtonFlag btn)
 	{
 		super(wid, mid, mods, pos, btnChanged, btn);
@@ -301,7 +301,7 @@ class MouseReleasedEvent : MouseButtonEvent
 class MouseClickedEvent : MouseButtonEvent
 {
     import deadcode.gui.widget : Widget;
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid, MouseID mid, KeyMod mods, Vec2f pos, int btnChanged, MouseButtonFlag btn, Widget ovrWidget)
 	{
 		super(wid, mid, mods, pos, btnChanged, btn);
@@ -313,7 +313,7 @@ class MouseClickedEvent : MouseButtonEvent
 class MouseDoubleClickedEvent : MouseButtonEvent
 {
     import deadcode.gui.widget : Widget;
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid, MouseID mid, KeyMod mods, Vec2f pos, int btnChanged, MouseButtonFlag btn, Widget ovrWidget)
 	{
 		super(wid, mid, mods, pos, btnChanged, btn);
@@ -325,7 +325,7 @@ class MouseDoubleClickedEvent : MouseButtonEvent
 class MouseTripleClickedEvent : MouseButtonEvent
 {
     import deadcode.gui.widget : Widget;
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid, MouseID mid, KeyMod mods, Vec2f pos, int btnChanged, MouseButtonFlag btn, Widget ovrWidget)
 	{
 		super(wid, mid, mods, pos, btnChanged, btn);
@@ -338,7 +338,7 @@ class MouseTripleClickedEvent : MouseButtonEvent
 class MouseWheelEvent : MouseEvent
 {
     import deadcode.gui.widget : Widget;
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid, MouseID mid, KeyMod mods, Vec2f scrl, bool scrollIsFlipped)
 	{
 		super(wid, mid, mods);
@@ -368,7 +368,7 @@ class MouseWheelEvent : MouseEvent
 
 class InputFocusEvent : GUIEvent
 {
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid)
 	{
 		super(wid);
@@ -377,7 +377,7 @@ class InputFocusEvent : GUIEvent
 
 class InputUnfocusEvent : GUIEvent
 {
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid)
 	{
 		super(wid);
@@ -387,7 +387,7 @@ class InputUnfocusEvent : GUIEvent
 // GUIEvent really?
 class CommandEvent : GUIEvent
 {
-    private this() {}
+	/*private*/ this() {}
     this(string commandName, CommandParameter[] args, WindowID wid)
 	{
 		super(wid);
@@ -401,7 +401,7 @@ class CommandEvent : GUIEvent
 
 abstract class KeyboardEvent : GUIEvent
 {
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid, KeyMod mods)
 	{
 		super(wid);
@@ -413,7 +413,7 @@ abstract class KeyboardEvent : GUIEvent
 
 abstract class KeyCharEvent : KeyboardEvent
 {
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid, KeyMod mods, KeyCode keycode, dchar c)
 	{
 		super(wid, mods);
@@ -426,7 +426,7 @@ abstract class KeyCharEvent : KeyboardEvent
 
 class KeyPressedEvent : KeyCharEvent
 {
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid, KeyMod mods, KeyCode keycode, dchar c)
 	{
 		super(wid, mods, keycode, c);
@@ -435,7 +435,7 @@ class KeyPressedEvent : KeyCharEvent
 
 class KeyReleasedEvent : KeyCharEvent
 {
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid, KeyMod mods, KeyCode keycode, dchar c)
 	{
 		super(wid, mods, keycode, c);
@@ -444,7 +444,7 @@ class KeyReleasedEvent : KeyCharEvent
 
 class TextEvent : KeyboardEvent
 {
-    private this() {}
+	/*private*/ this() {}
     this(WindowID wid, KeyMod mods, dchar unicodeChr)
 	{
 		super(wid, mods);
@@ -455,7 +455,7 @@ class TextEvent : KeyboardEvent
 
 abstract class WindowEvent : GUIEvent
 {
-    private this() {}
+	/*private*/ this() {}
     this(uint wid)
 	{
 		super(wid);
@@ -464,7 +464,7 @@ abstract class WindowEvent : GUIEvent
 
 class WindowResizedEvent : WindowEvent
 {
-    private this() {}
+	/*private*/ this() {}
     this(uint _windowID, Vec2f sz)
 	{
 		super(_windowID);
@@ -475,7 +475,7 @@ class WindowResizedEvent : WindowEvent
 
 class WindowFocussedEvent : WindowEvent
 {
-    private this() {}
+	/*private*/ this() {}
     this(uint _windowID)
 	{
 		super(_windowID);
@@ -484,7 +484,7 @@ class WindowFocussedEvent : WindowEvent
 
 class WindowUnfocussedEvent : WindowEvent
 {
-    private this() {}
+	/*private*/ this() {}
     this(uint _windowID)
 	{
 		super(_windowID);
@@ -494,7 +494,7 @@ class WindowUnfocussedEvent : WindowEvent
 // TODO: move out of here
 class DropFile : Event
 {
-    private this() {}
+	/*private*/ this() {}
     this (string f, KeyMod mods)
 	{
 		file = f;
