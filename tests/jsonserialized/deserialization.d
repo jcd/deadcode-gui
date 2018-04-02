@@ -6,6 +6,7 @@ import std.conv;
 import stdx.data.json;	
 import std.meta;
 import std.traits;
+import deadcode.core.traits : Identity;
 
 void deserializeFromJSONValue(T)(ref T array, in JSONValue jsonValue) if (isArray!T) {
     alias ElementType = ForeachType!T;

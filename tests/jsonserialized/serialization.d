@@ -7,6 +7,8 @@ import stdx.data.json;
 import std.meta;
 import std.traits;
 
+import deadcode.core.traits : Identity;
+
 @safe:
 
 pure JSONValue serializeToJSONValue(T)(in ref T array) if (isArray!T) {
